@@ -113,11 +113,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
     width: '60%',
-    shadowColor: theme.colors.neonCyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
-    shadowRadius: 8,
-    elevation: 3,
   },
   countContainer: {
     alignItems: 'flex-end',

@@ -2,49 +2,80 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { theme } from '../utils/theme';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-export const BottomNav = () => {
+const ICONS = {
+  Dashboard: (active: boolean) => (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.neonCyan : "currentColor"} color={theme.colors.mutedText} strokeWidth={active ? 1.8 : 1.6}>
+      <Path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+    </Svg>
+  ),
+  Tasks: (active: boolean) => (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.neonCyan : "currentColor"} color={theme.colors.mutedText} strokeWidth={active ? 1.8 : 1.6}>
+      <Path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </Svg>
+  ),
+  Gym: (active: boolean) => (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.neonCyan : "currentColor"} color={theme.colors.mutedText} strokeWidth={active ? 1.8 : 1.6}>
+      <Path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9v6m3-8.25v10.5m0-10.5h1.5a1.5 1.5 0 011.5 1.5v7.5a1.5 1.5 0 01-1.5 1.5h-1.5m10.5-10.5v10.5m0-10.5h-1.5a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h1.5m3-8.25v6" />
+    </Svg>
+  ),
+  Meals: (active: boolean) => (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.neonCyan : "currentColor"} color={theme.colors.mutedText} strokeWidth={active ? 1.8 : 1.6}>
+      <Path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+    </Svg>
+  ),
+  Money: (active: boolean) => (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.neonCyan : "currentColor"} color={theme.colors.mutedText} strokeWidth={active ? 1.8 : 1.6}>
+      <Path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+    </Svg>
+  ),
+};
+
+const LABELS = {
+  Dashboard: 'Home',
+  Tasks: 'Tasks',
+  Gym: 'Gym',
+  Meals: 'Meals',
+  Money: 'Money',
+};
+
+export const BottomNav = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <View style={styles.iconContainer}>
-            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={theme.colors.neonCyan} strokeWidth={1.8}>
-              <Path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </Svg>
-            {/* Soft glow effect for active tab */}
-            <View style={styles.iconGlow} />
-          </View>
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>Home</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" color={theme.colors.mutedText} strokeWidth={1.6}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </Svg>
-          <Text style={styles.tabLabel}>Tasks</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" color={theme.colors.mutedText} strokeWidth={1.6}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9v6m3-8.25v10.5m0-10.5h1.5a1.5 1.5 0 011.5 1.5v7.5a1.5 1.5 0 01-1.5 1.5h-1.5m10.5-10.5v10.5m0-10.5h-1.5a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h1.5m3-8.25v6" />
-          </Svg>
-          <Text style={styles.tabLabel}>Gym</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" color={theme.colors.mutedText} strokeWidth={1.6}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-          </Svg>
-          <Text style={styles.tabLabel}>Meals</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" color={theme.colors.mutedText} strokeWidth={1.6}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-          </Svg>
-          <Text style={styles.tabLabel}>Money</Text>
-        </TouchableOpacity>
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <TouchableOpacity 
+              key={route.key}
+              style={styles.tabItem} 
+              activeOpacity={0.7}
+              onPress={onPress}
+            >
+              <View style={styles.iconContainer}>
+                {ICONS[route.name as keyof typeof ICONS](isFocused)}
+                {isFocused && <View style={styles.iconGlow} />}
+              </View>
+              <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
+                {LABELS[route.name as keyof typeof LABELS]}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );

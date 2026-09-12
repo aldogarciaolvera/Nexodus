@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '../../components/Header';
 import { DailyTodoCard } from '../../components/cards/DailyTodoCard';
 import { WorkoutCard } from '../../components/cards/WorkoutCard';
 import { DietCard } from '../../components/cards/DietCard';
 import { FinanceCard } from '../../components/cards/FinanceCard';
-import { BottomNav } from '../../components/BottomNav';
 import { theme } from '../../utils/theme';
 
 export const DashboardScreen = () => {
@@ -32,8 +32,6 @@ export const DashboardScreen = () => {
           {/* Spacer for bottom nav */}
           <View style={{ height: 80 }} />
         </ScrollView>
-        
-        <BottomNav />
       </View>
     </SafeAreaView>
   );

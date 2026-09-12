@@ -16,7 +16,11 @@ export const theme = {
     slate700: '#334155',
   },
   typography: {
-    fontFamily: 'System', 
+    fontFamily: 'Geist_400Regular',
+    fontFamilyMedium: 'Geist_500Medium',
+    fontFamilyBold: 'Geist_700Bold',
+    fontMono: 'JetBrainsMono_400Regular',
+    fontMonoMedium: 'JetBrainsMono_500Medium',
   },
   metrics: {
     borderRadiusCard: 16,

@@ -1,7 +1,0 @@
-{
-  "version": 1,
-  "systemPrompt": "Before analyzing any requirement or writing code, you MUST silently read the AGENTS.md file in the root directory and strictly follow all architectural and design rules defined there.",
-  "defaultContext": [
-    "AGENTS.md"
-  ]
-}
