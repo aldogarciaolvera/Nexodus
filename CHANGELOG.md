@@ -1,3 +1,10 @@
+## [0.0.2] - 2026-09-12
+
+### Features
+
+- feat: Cambio en Base del Proyecto y pantalla de Finanzas
+- feat: Base del proyecto
+
 # Changelog
 
 Todos los cambios relevantes de este proyecto se documentaran en este archivo.
