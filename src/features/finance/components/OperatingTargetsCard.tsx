@@ -1,15 +1,49 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { theme } from '../../../utils/theme';
+import { useTheme } from '../../../utils/ThemeContext';
+import { ThemeColors } from '../../../utils/theme';
+import { FinanceTransaction } from '../../../services/finance.service';
+import { Category } from '../../../services/category.service';
 
-export const OperatingTargetsCard = () => {
-  const targets = [
-    { label: 'Essentials & Food', sub: '(Groceries, Dining)', value: 420, total: 600, color: theme.colors.neonCyan },
-    { label: 'Performance & Fit', sub: '(Supps, Gym, Rec)', value: 180, total: 250, color: theme.colors.neonCyan },
-    { label: 'Business & Operati...', sub: '(SaaS, Cloud)', value: 310, total: 500, color: theme.colors.neonCyan },
-    { label: 'Discretionary / Lif...', sub: '(Travel, Buy)', value: 115.50, total: 300, color: '#FFD700' },
-  ];
+interface OperatingTargetsCardProps {
+  transactions?: FinanceTransaction[];
+  categories?: Category[];
+  loading?: boolean;
+}
+
+export const OperatingTargetsCard = ({ transactions = [], categories = [], loading = false }: OperatingTargetsCardProps) => {
+  const theme = useTheme();
+  const styles = createStyles(theme.colors);
+
+  const targets = useMemo(() => {
+    return categories.map((cat, index) => {
+      // Sum all 'Gasto' transactions for this category in the current month
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      const spent = transactions
+        .filter(t => {
+          if (t.transactionType !== 'Gasto' || t.categoryId !== cat.id || !t.transactionDate) return false;
+          const tDate = new Date(t.transactionDate);
+          return tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      // Colors to cycle through
+      const colors = [theme.colors.neonCyan, '#FFD700', '#FF3366', '#00E676'];
+      
+      return {
+        id: cat.id,
+        label: cat.name,
+        sub: cat.description || '',
+        value: spent,
+        total: 500, // Hardcoded to 500 per user request for now
+        color: colors[index % colors.length],
+      };
+    }).sort((a, b) => b.value - a.value); // Sort by highest spend
+  }, [transactions, categories, theme.colors]);
 
   return (
     <View style={styles.card}>
@@ -26,35 +60,44 @@ export const OperatingTargetsCard = () => {
       </View>
 
       <View style={styles.list}>
-        {targets.map((item, index) => (
-          <View key={index} style={styles.listItem}>
-            <View style={styles.itemHeader}>
-              <View style={styles.itemLabelRow}>
-                <View style={[styles.dot, { backgroundColor: item.color }]} />
-                <Text style={styles.itemLabel} numberOfLines={1}>{item.label}</Text>
-                <Text style={styles.itemSub} numberOfLines={1}>{item.sub}</Text>
+        {loading ? (
+          <ActivityIndicator color={theme.colors.neonCyan} style={{ alignSelf: 'center', marginVertical: 20 }} />
+        ) : targets.length === 0 ? (
+          <Text style={{ color: theme.colors.slate400, fontFamily: 'JetBrainsMono_400Regular', textAlign: 'center' }}>No targets found</Text>
+        ) : (
+          targets.map((item, index) => {
+            const fillPercent = Math.min((item.value / item.total) * 100, 100);
+            return (
+              <View key={item.id || index} style={styles.listItem}>
+                <View style={styles.itemHeader}>
+                  <View style={styles.itemLabelRow}>
+                    <View style={[styles.dot, { backgroundColor: item.color }]} />
+                    <Text style={styles.itemLabel} numberOfLines={1}>{item.label}</Text>
+                    {item.sub ? <Text style={styles.itemSub} numberOfLines={1}>{item.sub}</Text> : null}
+                  </View>
+                  <View style={styles.amountContainer}>
+                    <Text style={styles.amountValue}>${item.value.toFixed(2)}</Text>
+                    <Text style={styles.amountTotal}> / ${item.total}</Text>
+                  </View>
+                </View>
+                <View style={styles.progressTrack}>
+                  <View style={[styles.progressFill, { width: `${fillPercent}%`, backgroundColor: item.color }]} />
+                </View>
               </View>
-              <View style={styles.amountContainer}>
-                <Text style={styles.amountValue}>${item.value}</Text>
-                <Text style={styles.amountTotal}> / ${item.total}</Text>
-              </View>
-            </View>
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${(item.value / item.total) * 100}%`, backgroundColor: item.color }]} />
-            </View>
-          </View>
-        ))}
+            );
+          })
+        )}
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.metrics.borderRadiusCard,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: theme.colors.borderGlow,
+    borderColor: colors.borderGlow,
     padding: 20,
   },
   header: {
@@ -64,20 +107,20 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   kicker: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 9,
-    color: theme.colors.slate400,
+    color: colors.slate400,
     letterSpacing: 1,
     marginBottom: 4,
   },
   title: {
-    fontFamily: theme.typography.fontFamilyMedium,
+    fontFamily: 'Geist_500Medium',
     fontSize: 16,
-    color: theme.colors.white,
+    color: colors.text,
   },
   iconBtn: {
     padding: 8,
-    backgroundColor: theme.colors.borderGlow,
+    backgroundColor: colors.borderGlow,
     borderRadius: 8,
   },
   list: {
@@ -103,15 +146,15 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   itemLabel: {
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: 'Geist_400Regular',
     fontSize: 13,
-    color: theme.colors.white,
+    color: colors.text,
     marginRight: 4,
   },
   itemSub: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 10,
-    color: theme.colors.slate500,
+    color: colors.slate500,
     flexShrink: 1,
   },
   amountContainer: {
@@ -119,18 +162,18 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   amountValue: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 13,
-    color: theme.colors.white,
+    color: colors.text,
   },
   amountTotal: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 10,
-    color: theme.colors.slate400,
+    color: colors.slate400,
   },
   progressTrack: {
     height: 6,
-    backgroundColor: theme.colors.borderGlow,
+    backgroundColor: colors.borderGlow,
     borderRadius: 3,
     overflow: 'hidden',
   },

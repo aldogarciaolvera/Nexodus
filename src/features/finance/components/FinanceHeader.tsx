@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import { theme } from '../../../utils/theme';
+import { useTheme } from '../../../utils/ThemeContext';
+import { ThemeColors } from '../../../utils/theme';
 
 interface FinanceHeaderProps {
   onAddTransaction: () => void;
 }
 
 export const FinanceHeader = ({ onAddTransaction }: FinanceHeaderProps) => {
+  const theme = useTheme();
+  const styles = createStyles(theme.colors);
+
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
@@ -24,7 +27,7 @@ export const FinanceHeader = ({ onAddTransaction }: FinanceHeaderProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     marginBottom: 20,
   },
@@ -38,12 +41,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: theme.colors.neonCyan,
+    backgroundColor: colors.neonCyan,
   },
   statusText: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 10,
-    color: theme.colors.slate400,
+    color: colors.slate400,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -53,20 +56,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: theme.typography.fontFamilyBold,
+    fontFamily: 'Geist_700Bold',
     fontSize: 24,
-    color: theme.colors.white,
+    color: colors.text,
   },
   actionBtn: {
-    backgroundColor: theme.colors.neonCyan,
+    backgroundColor: colors.neonCyan,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: theme.metrics.borderRadiusBadge,
+    borderRadius: 9999, // theme.metrics.borderRadiusBadge
   },
   actionText: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
-    color: theme.colors.obsidian,
+    color: colors.surface, // inverted in dark, inverted in light? Wait, button is cyan. Obsidian background is dark. Let's use #000 or surface.
     letterSpacing: 0.5,
   }
 });

@@ -1,9 +1,31 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Path, Rect } from 'react-native-svg';
-import { theme } from '../../../utils/theme';
+import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../../../utils/ThemeContext';
+import { ThemeColors } from '../../../utils/theme';
+import { FinanceSummary } from '../../../services/finance.service';
 
-export const NetWorthCard = () => {
+interface NetWorthCardProps {
+  summary: FinanceSummary | null;
+  loading?: boolean;
+}
+
+export const NetWorthCard = ({ summary, loading }: NetWorthCardProps) => {
+  const theme = useTheme();
+  const styles = createStyles(theme.colors);
+
+  // Safe defaults
+  const netBalance = summary?.netBalance || 0;
+  const totalIncome = summary?.totalIncome || 0;
+  const totalExpense = summary?.totalExpense || 0;
+  
+  // Format currency
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(val);
+  };
   return (
     <View style={styles.card}>
       {/* Top Header */}
@@ -25,7 +47,7 @@ export const NetWorthCard = () => {
 
       {/* Main Balance */}
       <View style={styles.balanceRow}>
-        <Text style={styles.balance}>$128,450.00</Text>
+        <Text style={styles.balance}>{loading ? '...' : formatCurrency(netBalance)}</Text>
         <Text style={styles.currency}>USD</Text>
       </View>
 
@@ -62,33 +84,33 @@ export const NetWorthCard = () => {
         <View style={styles.velocityHeader}>
           <View style={styles.velocityLabelContainer}>
             <View style={styles.statusIndicator} />
-            <Text style={styles.velocityLabel}>WEEKLY CAP{'\n'}VELOCITY</Text>
+            <Text style={styles.velocityLabel}>MONTHLY{'\n'}OVERVIEW</Text>
           </View>
           <View style={styles.velocityAmountContainer}>
-            <Text style={styles.velocityAmount}>$450.20</Text>
-            <Text style={styles.velocityRemaining}>Remaining</Text>
+            <Text style={styles.velocityAmount}>{loading ? '...' : formatCurrency(totalIncome)}</Text>
+            <Text style={styles.velocityRemaining}>Income</Text>
           </View>
         </View>
         
         <View style={styles.largeProgressTrack}>
-          <View style={[styles.largeProgressFill, { width: '40%' }]} />
+          <View style={[styles.largeProgressFill, { width: totalIncome > 0 ? `${Math.min((totalExpense / totalIncome) * 100, 100)}%` : '0%' }]} />
         </View>
 
         <View style={styles.velocityFooter}>
-          <Text style={styles.velocitySubtext}>Spent: $115.50</Text>
-          <Text style={styles.velocitySubtext}>Ceiling: $800.00</Text>
+          <Text style={styles.velocitySubtext}>Expense: {loading ? '...' : formatCurrency(totalExpense)}</Text>
+          <Text style={styles.velocitySubtext}>Income: {loading ? '...' : formatCurrency(totalIncome)}</Text>
         </View>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.metrics.borderRadiusCard,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: theme.colors.borderGlow,
+    borderColor: colors.borderGlow,
     padding: 20,
   },
   header: {
@@ -103,9 +125,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerText: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
-    color: theme.colors.slate400,
+    color: colors.slate400,
     letterSpacing: 1,
   },
   badge: {
@@ -114,13 +136,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 240, 255, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: theme.metrics.borderRadiusBadge,
+    borderRadius: 9999,
     gap: 4,
   },
   badgeText: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
-    color: theme.colors.neonCyan,
+    color: colors.neonCyan,
   },
   balanceRow: {
     flexDirection: 'row',
@@ -129,14 +151,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   balance: {
-    fontFamily: theme.typography.fontFamilyBold,
+    fontFamily: 'Geist_700Bold',
     fontSize: 32,
-    color: theme.colors.white,
+    color: colors.text,
   },
   currency: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 12,
-    color: theme.colors.slate400,
+    color: colors.slate400,
   },
   columns: {
     flexDirection: 'row',
@@ -148,21 +170,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   columnLabel: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 9,
-    color: theme.colors.slate400,
+    color: colors.slate400,
     marginBottom: 6,
     letterSpacing: 0.5,
   },
   columnValue: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 13,
-    color: theme.colors.white,
+    color: colors.text,
     marginBottom: 8,
   },
   progressTrack: {
     height: 4,
-    backgroundColor: theme.colors.borderGlow,
+    backgroundColor: colors.borderGlow,
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -172,7 +194,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: theme.colors.borderGlow,
+    backgroundColor: colors.borderGlow,
     marginBottom: 20,
   },
   velocitySection: {},
@@ -191,37 +213,37 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: theme.colors.neonCyan,
+    backgroundColor: colors.neonCyan,
   },
   velocityLabel: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 10,
-    color: theme.colors.slate400,
+    color: colors.slate400,
     letterSpacing: 0.5,
   },
   velocityAmountContainer: {
     alignItems: 'flex-end',
   },
   velocityAmount: {
-    fontFamily: theme.typography.fontMonoMedium,
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 14,
-    color: theme.colors.neonCyan,
+    color: colors.neonCyan,
   },
   velocityRemaining: {
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: 'Geist_400Regular',
     fontSize: 10,
-    color: theme.colors.neonCyan,
+    color: colors.neonCyan,
   },
   largeProgressTrack: {
     height: 6,
-    backgroundColor: theme.colors.borderGlow,
+    backgroundColor: colors.borderGlow,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 10,
   },
   largeProgressFill: {
     height: '100%',
-    backgroundColor: theme.colors.neonCyan,
+    backgroundColor: colors.neonCyan,
     borderRadius: 3,
   },
   velocityFooter: {
@@ -229,8 +251,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   velocitySubtext: {
-    fontFamily: theme.typography.fontMono,
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 10,
-    color: theme.colors.slate500,
+    color: colors.slate500,
   }
 });
