@@ -14,6 +14,7 @@ export type ThemeColors = {
   slate600: string;
   slate700: string;
   text: string;
+  error: string;
 };
 
 export const darkColors: ThemeColors = {
@@ -21,8 +22,8 @@ export const darkColors: ThemeColors = {
   surface: '#14171F',
   surfaceLight: '#1B202A',
   borderGlow: '#222836',
-  neonCyan: '#00F0FF',
-  neonIce: '#38BDF8',
+  neonCyan: '#38BDF8',
+  neonIce: '#00F0FF',
   mutedText: '#8E95A5',
   white: '#FFFFFF', // Keep this as white for some accents
   slate200: '#E2E8F0',
@@ -32,6 +33,7 @@ export const darkColors: ThemeColors = {
   slate600: '#475569',
   slate700: '#334155',
   text: '#FFFFFF',
+  error: '#FF3366', // vivid coral/pink-red for dark mode
 };
 
 export const lightColors: ThemeColors = {
@@ -39,8 +41,8 @@ export const lightColors: ThemeColors = {
   surface: '#FFFFFF', // White cards
   surfaceLight: '#F1F5F9', // Slightly darker surface
   borderGlow: '#E2E8F0', // Light border
-  neonCyan: '#0284C7', // Darker cyan for light mode to maintain contrast
-  neonIce: '#0EA5E9',
+  neonCyan: '#0EA5E9', 
+  neonIce: '#0284C7',
   mutedText: '#64748B',
   white: '#000000', // Inverse for text that was forced to white
   slate200: '#334155', // Inverted slate
@@ -50,6 +52,7 @@ export const lightColors: ThemeColors = {
   slate600: '#CBD5E1',
   slate700: '#E2E8F0',
   text: '#0B0D11',
+  error: '#E11D48', // deep rose for light mode
 };
 
 export const typography = {

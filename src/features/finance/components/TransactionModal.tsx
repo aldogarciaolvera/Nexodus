@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Alert, Animated } from 'react-native';
 import { useTheme } from '../../../utils/ThemeContext';
 import { ThemeColors } from '../../../utils/theme';
-import { FinanceService } from '../../../services/finance.service';
-import { Category } from '../../../services/category.service';
+import { FinanceService, FinanceTransaction } from '../../../services/finance.service';
+import { ActionSheet } from '../../../components/ActionSheet';
+import { Category, CategoryService } from '../../../services/category.service';
+import { CategoryModal } from './CategoryModal';
 
 interface TransactionModalProps {
   visible: boolean;
   onClose: () => void;
   categories?: Category[];
+  transactions?: FinanceTransaction[];
   onSuccess?: () => void;
 }
 
-export const TransactionModal = ({ visible, onClose, categories = [], onSuccess }: TransactionModalProps) => {
+export const TransactionModal = ({ visible, onClose, categories = [], transactions = [], onSuccess }: TransactionModalProps) => {
   const theme = useTheme();
   const styles = createStyles(theme.colors);
   
@@ -21,13 +24,55 @@ export const TransactionModal = ({ visible, onClose, categories = [], onSuccess 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Action Sheet State
+  const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+  const [actionCategory, setActionCategory] = useState<Category | null>(null);
+
+  // Category Modal State
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [catLoading, setCatLoading] = useState(false);
+
+  // Animation State
+  const [showModal, setShowModal] = useState(visible);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Error Alert State
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const showError = (msg: string) => {
+    setErrorMsg(msg);
+    setErrorVisible(true);
+  };
+
+  useEffect(() => {
+    if (visible) {
+      setShowModal(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 150, // Animación de fade más rápida (150ms)
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowModal(false);
+      });
+    }
+  }, [visible]);
+
   const handleSubmit = async () => {
     if (!amount || isNaN(Number(amount))) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showError('Por favor ingresa un monto válido');
       return;
     }
     if (!selectedCategory) {
-      Alert.alert('Error', 'Please select a category');
+      showError('Por favor selecciona una categoría');
       return;
     }
 
@@ -49,42 +94,51 @@ export const TransactionModal = ({ visible, onClose, categories = [], onSuccess 
       onClose();
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to create transaction');
+      showError('No se pudo crear la transacción');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCategoryLongPress = (cat: Category) => {
+    setActionCategory(cat);
+    setActionSheetVisible(true);
+  };
+
+  const openAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryModalVisible(true);
+  };
+
   return (
     <Modal
-      visible={visible}
+      visible={showModal}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
         <View style={styles.content}>
-          <View style={styles.handle} />
-          <Text style={styles.title}>Log Transaction</Text>
+          <Text style={styles.title}>Nueva Transaccion</Text>
           
           <View style={styles.typeSelector}>
             <TouchableOpacity 
               style={[styles.typeBtn, type === 'Gasto' && styles.typeBtnActive]} 
               onPress={() => setType('Gasto')}
             >
-              <Text style={[styles.typeText, type === 'Gasto' && styles.typeTextActive]}>EXPENSE</Text>
+              <Text style={[styles.typeText, type === 'Gasto' && styles.typeTextActive]}>GASTO</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.typeBtn, type === 'Ingreso' && styles.typeBtnActive]} 
               onPress={() => setType('Ingreso')}
             >
-              <Text style={[styles.typeText, type === 'Ingreso' && styles.typeTextActive]}>INCOME</Text>
+              <Text style={[styles.typeText, type === 'Ingreso' && styles.typeTextActive]}>INGRESO</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Amount (MXN/USD)</Text>
+            <Text style={styles.label}>Monto (MXN)</Text>
             <TextInput
               style={styles.input}
               placeholder="0.00"
@@ -96,19 +150,27 @@ export const TransactionModal = ({ visible, onClose, categories = [], onSuccess 
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Category</Text>
+            <Text style={styles.label}>Categoria</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
               {categories.map(cat => (
                 <TouchableOpacity 
                   key={cat.id} 
                   style={[styles.categoryBtn, selectedCategory === cat.id && styles.categoryBtnActive]}
                   onPress={() => setSelectedCategory(cat.id!)}
+                  onLongPress={() => handleCategoryLongPress(cat)}
+                  delayLongPress={300}
                 >
                   <Text style={[styles.categoryText, selectedCategory === cat.id && styles.categoryTextActive]}>
                     {cat.name}
                   </Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity 
+                style={[styles.categoryBtn, { borderStyle: 'dashed' }]}
+                onPress={openAddCategory}
+              >
+                <Text style={styles.categoryText}>+</Text>
+              </TouchableOpacity>
             </ScrollView>
           </View>
 
@@ -116,11 +178,97 @@ export const TransactionModal = ({ visible, onClose, categories = [], onSuccess 
             {loading ? (
               <ActivityIndicator color={theme.colors.obsidian} />
             ) : (
-              <Text style={styles.submitText}>CONFIRM TRANSACTION</Text>
+              <Text style={styles.submitText}>CONFIRMAR</Text>
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
+
+      {/* Modal para Crear/Editar Categoría */}
+      <CategoryModal
+        visible={categoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        editingCategory={editingCategory}
+        onSuccess={(savedCat) => {
+          setSelectedCategory(savedCat.id!);
+          if (onSuccess) onSuccess();
+        }}
+      />
+
+      {/* Action Sheet para opciones de Categoría */}
+      <ActionSheet
+        visible={actionSheetVisible}
+        onClose={() => setActionSheetVisible(false)}
+        title="Opciones de Categoría"
+        subtitle={actionCategory ? `¿Qué deseas hacer con "${actionCategory.name}"?` : ''}
+        options={[
+          {
+            label: 'Editar',
+            onPress: () => {
+              if (actionCategory) {
+                setEditingCategory(actionCategory);
+                setCategoryModalVisible(true);
+              }
+            }
+          },
+          {
+            label: 'Eliminar',
+            destructive: true,
+            onPress: () => {
+              setConfirmDeleteVisible(true);
+            }
+          }
+        ]}
+      />
+
+      {/* Action Sheet para confirmar eliminación */}
+      <ActionSheet
+        visible={confirmDeleteVisible}
+        onClose={() => setConfirmDeleteVisible(false)}
+        title="Confirmar Eliminación"
+        subtitle={actionCategory ? `¿Estás seguro que deseas eliminar "${actionCategory.name}"?` : ''}
+        options={[
+          {
+            label: 'Sí, Eliminar',
+            destructive: true,
+            onPress: async () => {
+              if (!actionCategory) return;
+              try {
+                setCatLoading(true);
+                
+                // Eliminar primero todas las transacciones asociadas a la categoría
+                const catTxs = transactions.filter(t => t.categoryId === actionCategory.id);
+                await Promise.all(catTxs.map(t => FinanceService.delete(t.id)));
+                
+                // Luego eliminar la categoría
+                await CategoryService.delete(actionCategory.id!);
+                
+                if (selectedCategory === actionCategory.id) setSelectedCategory(null);
+                if (onSuccess) onSuccess();
+              } catch (e) {
+                showError('No se pudo eliminar la categoría o sus transacciones');
+              } finally {
+                setCatLoading(false);
+              }
+            }
+          }
+        ]}
+      />
+
+      {/* Action Sheet para errores */}
+      <ActionSheet
+        visible={errorVisible}
+        onClose={() => setErrorVisible(false)}
+        title="Error"
+        subtitle={errorMsg}
+        isError={true}
+        options={[
+          {
+            label: 'OK',
+            onPress: () => setErrorVisible(false)
+          }
+        ]}
+      />
     </Modal>
   );
 };
@@ -148,19 +296,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.borderGlow,
     borderBottomWidth: 0,
   },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: colors.slate700,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 24,
-  },
   title: {
     fontFamily: 'Geist_500Medium',
     fontSize: 20,
     color: colors.text,
     marginBottom: 24,
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
   typeSelector: {
     flexDirection: 'row',

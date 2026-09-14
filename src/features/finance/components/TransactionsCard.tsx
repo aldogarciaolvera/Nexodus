@@ -47,9 +47,6 @@ export const TransactionsCard = ({ transactions, categories = [], loading }: Tra
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.headerText}>RECENT TRANSACTIONS • {loading ? '...' : transactions.length} LOGGED</Text>
-        <TouchableOpacity>
-          <Text style={styles.exportText}>EXPORT{'\n'}CSV</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.list}>
@@ -105,12 +102,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.slate400,
     letterSpacing: 1,
     flex: 1,
-  },
-  exportText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 9,
-    color: colors.neonCyan,
-    textAlign: 'right',
   },
   list: {
     gap: 16,

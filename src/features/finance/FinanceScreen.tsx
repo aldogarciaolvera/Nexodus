@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../utils/ThemeContext';
 import { ThemeColors } from '../../utils/theme';
@@ -7,7 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { FinanceService, FinanceSummary, FinanceTransaction } from '../../services/finance.service';
 import { CategoryService, Category } from '../../services/category.service';
 
-import { FinanceHeader } from './components/FinanceHeader';
+import { Header } from '../../components/Header';
 import { NetWorthCard } from './components/NetWorthCard';
 import { WeeklyOutflowCard } from './components/WeeklyOutflowCard';
 import { OperatingTargetsCard } from './components/OperatingTargetsCard';
@@ -56,7 +56,7 @@ export const FinanceScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <FinanceHeader onAddTransaction={() => setModalVisible(true)} />
+          <Header title="Finanzas" />
           
           <View style={styles.stack}>
             <NetWorthCard summary={summary} loading={loading} />
@@ -75,8 +75,18 @@ export const FinanceScreen = () => {
         visible={modalVisible} 
         onClose={() => setModalVisible(false)}
         categories={categories}
+        transactions={transactions}
         onSuccess={fetchData}
       />
+
+      {/* Floating Action Button */}
+      <TouchableOpacity 
+        style={styles.fab} 
+        activeOpacity={0.8} 
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.fabIcon}>+</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -97,5 +107,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   stack: {
     gap: 14,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 100, // Above bottom nav
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.neonCyan,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderGlow,
+  },
+  fabIcon: {
+    fontSize: 28,
+    fontWeight: '300',
+    color: '#000000', // Assuming black for contrast against neon cyan
+    lineHeight: 32, // to vertically center the + symbol properly
   },
 });

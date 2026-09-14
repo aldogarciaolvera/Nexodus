@@ -30,50 +30,13 @@ export const NetWorthCard = ({ summary, loading }: NetWorthCardProps) => {
     <View style={styles.card}>
       {/* Top Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={theme.colors.neonCyan} strokeWidth={2}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 11v6M15 11v6" />
-          </Svg>
-          <Text style={styles.headerText}>NET WORTH • TOTAL BALANCE</Text>
-        </View>
-        <View style={styles.badge}>
-          <Svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke={theme.colors.neonCyan} strokeWidth={2}>
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M2 12l5-5 5 5 10-10" />
-            <Path strokeLinecap="round" strokeLinejoin="round" d="M16 2h6v6" />
-          </Svg>
-          <Text style={styles.badgeText}>+2.4%</Text>
-        </View>
+        <Text style={styles.headerText}>BALANCE TOTAL</Text>
       </View>
 
       {/* Main Balance */}
       <View style={styles.balanceRow}>
         <Text style={styles.balance}>{loading ? '...' : formatCurrency(netBalance)}</Text>
-        <Text style={styles.currency}>USD</Text>
-      </View>
-
-      {/* 3 Columns */}
-      <View style={styles.columns}>
-        <View style={styles.column}>
-          <Text style={styles.columnLabel}>CASH RESER...</Text>
-          <Text style={styles.columnValue}>$34,200</Text>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: '40%', backgroundColor: theme.colors.neonCyan }]} />
-          </View>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.columnLabel}>INVESTMENTS</Text>
-          <Text style={styles.columnValue}>$82,400</Text>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: '80%', backgroundColor: theme.colors.neonIce }]} />
-          </View>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.columnLabel}>YIELD VAULT</Text>
-          <Text style={styles.columnValue}>$11,850</Text>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: '30%', backgroundColor: '#FFD700' }]} />
-          </View>
-        </View>
+        <Text style={styles.currency}>MXN</Text>
       </View>
 
       {/* Separator */}
@@ -88,7 +51,7 @@ export const NetWorthCard = ({ summary, loading }: NetWorthCardProps) => {
           </View>
           <View style={styles.velocityAmountContainer}>
             <Text style={styles.velocityAmount}>{loading ? '...' : formatCurrency(totalIncome)}</Text>
-            <Text style={styles.velocityRemaining}>Income</Text>
+            <Text style={styles.velocityRemaining}>Ingresos</Text>
           </View>
         </View>
         
@@ -97,8 +60,8 @@ export const NetWorthCard = ({ summary, loading }: NetWorthCardProps) => {
         </View>
 
         <View style={styles.velocityFooter}>
-          <Text style={styles.velocitySubtext}>Expense: {loading ? '...' : formatCurrency(totalExpense)}</Text>
-          <Text style={styles.velocitySubtext}>Income: {loading ? '...' : formatCurrency(totalIncome)}</Text>
+          <Text style={styles.velocitySubtext}>Gastos: {loading ? '...' : formatCurrency(totalExpense)}</Text>
+          <Text style={styles.velocitySubtext}>Ingresos: {loading ? '...' : formatCurrency(totalIncome)}</Text>
         </View>
       </View>
     </View>
@@ -119,30 +82,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   headerText: {
     fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
     color: colors.slate400,
     letterSpacing: 1,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 9999,
-    gap: 4,
-  },
-  badgeText: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 10,
-    color: colors.neonCyan,
   },
   balanceRow: {
     flexDirection: 'row',

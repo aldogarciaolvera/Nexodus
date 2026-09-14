@@ -4,7 +4,12 @@ import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../utils/ThemeContext';
 import { ThemeColors } from '../utils/theme';
 
-export const Header = () => {
+interface HeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export const Header = ({ title = "Good morning, Alex!", subtitle = "Tuesday, Sept 10" }: HeaderProps) => {
   const theme = useTheme();
   const { isDarkMode, toggleTheme } = theme;
   const styles = createStyles(theme.colors);
@@ -33,8 +38,8 @@ export const Header = () => {
         </View>
       </View>
       <View style={styles.banner}>
-        <Text style={styles.welcomeText}>Good morning, Alex!</Text>
-        <Text style={styles.dateText}>Tuesday, Sept 10</Text>
+        <Text style={styles.welcomeText}>{title}</Text>
+        {subtitle ? <Text style={styles.dateText}>{subtitle}</Text> : null}
       </View>
     </View>
   );

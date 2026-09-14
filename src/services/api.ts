@@ -59,28 +59,38 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 };
 
 export const handleResponse = async (response: Response) => {
+  const text = await response.text();
+  
   if (!response.ok) {
     let errorMessage = 'Request failed';
-    try {
-      const errorData = await response.json();
-      
-      if (errorData.errors) {
-        const firstErrorKey = Object.keys(errorData.errors)[0];
-        if (firstErrorKey) {
-          errorMessage = errorData.errors[firstErrorKey][0];
+    if (text) {
+      try {
+        const errorData = JSON.parse(text);
+        if (errorData.errors) {
+          const firstErrorKey = Object.keys(errorData.errors)[0];
+          if (firstErrorKey) {
+            errorMessage = errorData.errors[firstErrorKey][0];
+          } else {
+            errorMessage = errorData.message || errorData.title || JSON.stringify(errorData);
+          }
         } else {
           errorMessage = errorData.message || errorData.title || JSON.stringify(errorData);
         }
-      } else {
-        errorMessage = errorData.message || errorData.title || JSON.stringify(errorData);
+      } catch (e) {
+        errorMessage = text;
       }
-    } catch (e) {
-      const text = await response.text();
-      errorMessage = text || `Error ${response.status}`;
+    } else {
+      errorMessage = `Error ${response.status}`;
     }
     throw new Error(errorMessage);
   }
   
-  const data = await response.json();
-  return data.content !== undefined ? data.content : data;
+  if (!text) return null;
+
+  try {
+    const data = JSON.parse(text);
+    return data.content !== undefined ? data.content : data;
+  } catch (e) {
+    return text;
+  }
 };
